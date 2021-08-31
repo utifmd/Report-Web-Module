@@ -1,0 +1,28 @@
+.day_width {
+  padding: 5px 5px 15px;
+}
+.toolbar { background-color: navy; padding: 1.5em; }
+.toolbar b { font-size: 24px; color: #f2f2f2;}
+.zebra { background-color: #eeeeee8c/*#414141*/; }
+.month { 
+    padding: 0.5em;
+    border: 0px; font-family: Verdana, Geneva, Tahoma, sans-serif
+}
+
+  /* .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'liga';
+  } */
