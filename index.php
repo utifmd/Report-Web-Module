@@ -43,8 +43,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.css"/>
     <link rel="stylesheet" href="./theme/custom-style.css">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <button
             class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarRightAlignExample"
@@ -94,7 +93,7 @@
                     data-mdb-toggle="dropdown" aria-expanded="false">
                     <?php echo $current_month ?>
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
                 <?php for($i = 1; $i < count($list_month); $i++){
                     $selected_month = $list_month[$i]; echo 
                     "<li onclick=\"funApply('".$selected_month."', '".$i."')\"><a class=\"dropdown-item\" style=\"cursor:pointer;\">".$selected_month."</a></li>"; } ?>
@@ -103,9 +102,9 @@
         </div>
     </div>
     <?php if(isset($_SESSION['isSignedIn'])) { ?>
-        <div class="table-responsive">
+        <div> <!--table-responsive-->
             <table id="table" class="table table-borderless table-hover">
-                <thead class="table-light">
+                <thead class="table-light sticky-top">
                     <tr style="vertical-align:middle;text-align:center;">
                         <th rowspan="2">No</th>
                         <th rowspan="2">Poliklinik</th>
@@ -247,12 +246,10 @@ function queryReqPoliCount($kd_poli, $day, $month, $year){
         COUNT(poliklinik.nm_poli) AS reg_poli_count
         FROM poliklinik 
         INNER JOIN reg_periksa ON reg_periksa.kd_poli = poliklinik.kd_poli
-
         WHERE EXTRACT(DAY FROM reg_periksa.tgl_registrasi) = '".$day."'
         AND EXTRACT(MONTH FROM reg_periksa.tgl_registrasi) = '".$month."'
         AND EXTRACT(YEAR FROM reg_periksa.tgl_registrasi) = '".$year."'
         AND reg_periksa.kd_poli = '".$kd_poli."'
-
         GROUP BY reg_periksa.tgl_registrasi
     ");
 }
