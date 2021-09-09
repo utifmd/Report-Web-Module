@@ -1,8 +1,9 @@
 <?php
     session_start();
 
-    $mysqli = new Mysqli("mysql", "root", "9809poiiop", "sik", 3306); // $mysqli = new Mysqli("localhost", "root", "", "fadhila", 3306); 
+    $mysqli = new Mysqli("mysql", "root", "9809poiiop", "sik", 3306); //$mysqli = new Mysqli("192.168.1.54", "online", 123456, "fadhila", 3306); 
     $list_month = array("Pilih Bulan", "Januari", "Februari", "Maret", "April", "Mai", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"); // date('F', mktime(0, 0 ,0 , $i, 1, date('Y')));
+    $list_institute = array("Pilih Institusi", "BPJS", "UMUM");
     $app_name = "RSIA Fadhila Batusangkar";
     $var_date_length = 31;
     $total_summary = 0;
@@ -25,6 +26,12 @@
         $current_month_pos = 0; // date('m'); 
     }
     
+    if(isset($_GET['institute'])){
+        $current_institute = $_GET['institute'];
+    }else{
+        $current_institute = $list_institute[0];
+    }
+
     /*$current_year = $_GET['year'] ?: date('Y');
     $current_month = $_GET['month'] ? $list_month[intval($_GET['month'])] : date('F');
     $current_month_pos = $_GET['month'] ?: date('m'); */
@@ -74,7 +81,7 @@
     </div>
 <?php if(!isset($_SESSION['isSignedIn'])) { ?>
     <div class="container">
-        <div class="alert alert-warning mb-5" role="alert"> <?php switch ($_GET['invalid_code']) {
+        <div class="alert alert-warning mb-5" role="alert"> <?php switch (isset($_GET['invalid_code'])) {
             case 101: echo 'Kombinasi password dan username anda salah, pastikan anda menggunakan akun yang benar /valid.'; break;
             case 102: echo 'Panjang karakter username atau password harus 8-20'; break;
             default: echo 'Silahkan lakukan login dengan akun yang valid pada menu "Sign In" yang terdapat pada menu bar diatas.'; break; } ?>
@@ -87,6 +94,17 @@
                 <input type="number" id="yearNumber" class="form-control" min="1800"
                     max="<?php echo date('Y') ?>" value="<?php echo $current_year ?>"/>
                 <label class="form-label" for="yearNumber">Year</label>
+            </div>
+            <div class="btn-group" role="group">
+                <button id="instituteKey" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
+                    data-mdb-toggle="dropdown" aria-expanded="false">
+                    <?php echo $current_institute ?>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
+                <?php for($i = 1; $i < count($list_institute); $i++){
+                    $selected_institute = $list_institute[$i]; echo 
+                    "<li><a href=\"?institute=".$selected_institute."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$selected_institute."</a></li>"; } ?>
+                </ul>
             </div>
             <div class="btn-group" role="group">
                 <button id="monthNumber" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
