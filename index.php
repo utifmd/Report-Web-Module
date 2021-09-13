@@ -8,10 +8,12 @@
     $var_date_length = 31;
     $total_summary = 0;
     
-    $query = $mysqli->query("SELECT * FROM poliklinik WHERE status='1'");
+    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1' AND `nm_poli` != 'ORTHOPEDI'");
+    $query_institute = $mysqli->query("SELECT * FROM penjab");
 
     if(mysqli_connect_errno()) exit();
-    else if(!$query) throw new Exception("Error Querying Request", 1);    
+    else if(!$query) throw new Exception("Error Querying Request", 1);
+    // else if(!$query_institute) throw new Exception("Error Querying Request", 1);
     
     if(isset($_GET['year']))
         $current_year = $_GET['year'];
@@ -101,9 +103,9 @@
                     <?php echo $current_institute ?>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
-                <?php for($i = 1; $i < count($list_institute); $i++){
-                    $selected_institute = $list_institute[$i]; echo 
-                    "<li><a href=\"?institute=".$selected_institute."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$selected_institute."</a></li>"; } ?>
+                <?php while($resource = $query_institute->fetch_assoc()){
+                    /*$selected_institute = $list_institute[$i];*/ echo 
+                    "<li><a href=\"?institute=".$resource['kd_pj']."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$resource['png_jawab']."</a></li>"; } ?>
                 </ul>
             </div>
             <div class="btn-group" role="group">
