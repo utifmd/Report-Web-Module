@@ -1,5 +1,5 @@
 <?php 
-$mysqli = new mysqli("mysql", "root", "9809poiiop", "sik", 3306);
+$mysqli = new mysqli("localhosst", "root", "", "rsia", 3306);
 // $mysqli = mysqli_connect("mysql", "root", "9809poiiop", "sik", 3306);
 
 $query_main = $mysqli->query("SELECT * FROM poliklinik");

@@ -1,14 +1,21 @@
 <?php
     session_start();
 
-    $mysqli = new Mysqli("mysql", "root", "9809poiiop", "sik", 3306); //$mysqli = new Mysqli("192.168.1.54", "online", 123456, "fadhila", 3306); 
+    $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    $mysqli = new Mysqli("localhost", "root", "", "rsia", 3306); //$mysqli = new Mysqli("192.168.1.54", "online", 123456, "fadhila", 3306); 
     $list_month = array("Pilih Bulan", "Januari", "Februari", "Maret", "April", "Mai", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"); // date('F', mktime(0, 0 ,0 , $i, 1, date('Y')));
     $list_institute = array("Pilih Institusi", "BPJS", "UMUM");
     $app_name = "RSIA Fadhila Batusangkar";
     $var_date_length = 31;
     $total_summary = 0;
     
-    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1' AND `nm_poli` != 'ORTHOPEDI'");
+    echo $url;
+
+    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1' 
+        AND `nm_poli` != 'ORTHOPEDI' 
+        AND `nm_poli` != 'Paru' 
+        AND `nm_poli` NOT LIKE '%logi%' 
+        AND `nm_poli` NOT LIKE '%kamar%' ORDER BY `nm_poli` DESC");
     $query_institute = $mysqli->query("SELECT * FROM penjab");
 
     if(mysqli_connect_errno()) exit();
@@ -28,12 +35,14 @@
         $current_month_pos = 0; // date('m'); 
     }
     
-    if(isset($_GET['institute'])){
+    if(isset($_GET['institute']) || isset($_GET['institute_code'])){
         $current_institute = $_GET['institute'];
+        $current_institute_code = $_GET['institute_code'];
     }else{
-        $current_institute = $list_institute[0];
+        $current_institute = null;
+        $current_institute_code = null;
     }
-
+    
     /*$current_year = $_GET['year'] ?: date('Y');
     $current_month = $_GET['month'] ? $list_month[intval($_GET['month'])] : date('F');
     $current_month_pos = $_GET['month'] ?: date('m'); */
@@ -98,17 +107,6 @@
                 <label class="form-label" for="yearNumber">Year</label>
             </div>
             <div class="btn-group" role="group">
-                <button id="instituteKey" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
-                    data-mdb-toggle="dropdown" aria-expanded="false">
-                    <?php echo $current_institute ?>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
-                <?php while($resource = $query_institute->fetch_assoc()){
-                    /*$selected_institute = $list_institute[$i];*/ echo 
-                    "<li><a href=\"?institute=".$resource['kd_pj']."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$resource['png_jawab']."</a></li>"; } ?>
-                </ul>
-            </div>
-            <div class="btn-group" role="group">
                 <button id="monthNumber" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
                     data-mdb-toggle="dropdown" aria-expanded="false">
                     <?php echo $current_month ?>
@@ -117,6 +115,17 @@
                 <?php for($i = 1; $i < count($list_month); $i++){
                     $selected_month = $list_month[$i]; echo 
                     "<li onclick=\"funApply('".$selected_month."', '".$i."')\"><a class=\"dropdown-item\" style=\"cursor:pointer;\">".$selected_month."</a></li>"; } ?>
+                </ul>
+            </div>
+            <div class="btn-group" role="group">
+                <button id="instituteKey" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
+                    data-mdb-toggle="dropdown" aria-expanded="false">
+                    <?php echo isset($current_institute) ? $current_institute : $list_institute[0]; ?>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
+                <?php while($resource = $query_institute->fetch_assoc()){
+                    /*$selected_institute = $list_institute[$i];*/ echo 
+                    "<li><a href=\"".mergeQueryStr($url, "?institute=".$resource['png_jawab']."&institute_code=".$resource['kd_pj']."")."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$resource['png_jawab']."</a></li>"; } ?>
                 </ul>
             </div>
         </div>
@@ -142,7 +151,7 @@
                     <tr>
                         <th scope=\"col\">".$num."</th>
                         <td scope=\"col\" style=\"white-space: nowrap\">".$row['nm_poli']."</td>";
-                        echo funIterateValues($row['kd_poli'], $current_year, $current_month_pos)."
+                        echo funIterateValues($row['kd_poli'], $current_institute_code, $current_year, $current_month_pos)."
                     </tr>
                 </tbody>"; 
                 } ?>
@@ -258,29 +267,40 @@ function funSignOut(){
     unset($_SESSION['isSignedIn']);
 }
 
-function queryReqPoliCount($kd_poli, $day, $month, $year){
+function queryReqPoliCount($kd_poli, $kd_pj, $day, $month, $year){
     global $mysqli;
 
-    return $mysqli->query("SELECT
+    return isset($kd_pj) 
+    ? $mysqli->query("SELECT
         reg_periksa.tgl_registrasi,
         COUNT(poliklinik.nm_poli) AS reg_poli_count
         FROM poliklinik 
         INNER JOIN reg_periksa ON reg_periksa.kd_poli = poliklinik.kd_poli
-        WHERE EXTRACT(DAY FROM reg_periksa.tgl_registrasi) = '".$day."'
+        WHERE EXTRACT(YEAR FROM reg_periksa.tgl_registrasi) = '".$year."'
         AND EXTRACT(MONTH FROM reg_periksa.tgl_registrasi) = '".$month."'
-        AND EXTRACT(YEAR FROM reg_periksa.tgl_registrasi) = '".$year."'
+        AND EXTRACT(DAY FROM reg_periksa.tgl_registrasi) = '".$day."'
         AND reg_periksa.kd_poli = '".$kd_poli."'
-        GROUP BY reg_periksa.tgl_registrasi
-    ");
+        AND reg_periksa.kd_pj = '".$kd_pj."'
+        GROUP BY reg_periksa.tgl_registrasi")
+    : $mysqli->query("SELECT
+        reg_periksa.tgl_registrasi,
+        COUNT(poliklinik.nm_poli) AS reg_poli_count
+        FROM poliklinik 
+        INNER JOIN reg_periksa ON reg_periksa.kd_poli = poliklinik.kd_poli
+        WHERE EXTRACT(YEAR FROM reg_periksa.tgl_registrasi) = '".$year."'
+        AND EXTRACT(MONTH FROM reg_periksa.tgl_registrasi) = '".$month."'
+        AND EXTRACT(DAY FROM reg_periksa.tgl_registrasi) = '".$day."'
+        AND reg_periksa.kd_poli = '".$kd_poli."'
+        GROUP BY reg_periksa.tgl_registrasi");
 }
 /* * *
     iterate horizontal queries
 * */
-function funIterateValues($kd_poli, $year, $month) {
+function funIterateValues($kd_poli, $kd_pj, $year, $month) {
     global $mysqli, $var_date_length, $total_summary;
 
     $total = 0; for($i = 0; $i < $var_date_length; $i++){ $day = ($i+1);
-        $reg_poli_count = queryReqPoliCount($kd_poli, $day, $month, $year)->fetch_assoc()['reg_poli_count'];
+        $reg_poli_count = queryReqPoliCount($kd_poli, $kd_pj, $day, $month, $year)->fetch_assoc()['reg_poli_count'];
         
         if($reg_poli_count > 0){
             $total = $total + $reg_poli_count;
@@ -290,4 +310,32 @@ function funIterateValues($kd_poli, $year, $month) {
     }
     echo "<td scope=\"row\">".$total."</td>";
     $total_summary = $total_summary + $total;
+} 
+
+function mergeQueryStr($url = null,$query = null,$recursive = false) {
+  // $url = 'http://www.google.com.au?q=apple&type=keyword';
+  // $query = '?q=banana';
+  // if there's a URL missing or no query string, return
+  if($url == null)
+    return false;
+  if($query == null)
+    return $url;
+  // split the url into it's components
+  $url_components = parse_url($url);
+  // if we have the query string but no query on the original url
+  // just return the URL + query string
+  if(empty($url_components['query']))
+    return $url.'?'.ltrim($query,'?');
+  // turn the url's query string into an array
+  parse_str($url_components['query'],$original_query_string);
+  // turn the query string into an array
+  parse_str(parse_url($query,PHP_URL_QUERY),$merged_query_string);
+  // merge the query string
+  if($recursive == true)
+    $merged_result = array_merge_recursive($original_query_string,$merged_query_string);
+  else
+    $merged_result = array_merge($original_query_string,$merged_query_string);
+  // Find the original query string in the URL and replace it with the new one
+  return str_replace($url_components['query'],http_build_query($merged_result),$url);
 }
+?>
