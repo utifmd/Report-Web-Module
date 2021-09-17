@@ -9,8 +9,7 @@
     $query_institute = $mysqli->query("SELECT * FROM penjab");
 
     if(mysqli_connect_errno()) exit();
-    else if(!$query) throw new Exception("Error Querying Request", 1);
-    // else if(!$query_institute) throw new Exception("Error Querying Request", 1);
+    else if(!$query) throw new Exception("Error Querying Request", 1); // else if(!$query_institute) throw new Exception("Error Querying Request", 1);
     
     if(isset($_GET['year']))
         $current_year = $_GET['year'];
@@ -44,48 +43,48 @@
     <title><?php echo $app_name; ?></title>
     <?php include_once("./components/dependency/link.php"); ?>
 </head>
-<body>
-<?php include_once("./components/header.php") ?>
-<?php echo sectionInfo() ?>
-    <?php include "./components/section/button-action.php" ?>
-    <?php if(isset($_SESSION['isSignedIn'])) { ?>
-        <div> <!--table-responsive-->
-            <table id="table" class="table table-borderless table-hover">
-                <thead class="table-light sticky-top">
-                    <tr style="vertical-align:middle;text-align:center;">
-                        <th rowspan="2">No</th>
-                        <th rowspan="2">Poliklinik</th>
-                        <th scope="col" colspan="<?php echo $var_date_length?>">Tanggal</th>
-                        <th rowspan="2">Total</th>
-                    </tr>
-                    <tr>
-                        <?php for($i = 0; $i < $var_date_length; $i++) echo "
-                        <th scope=\"col\" style=\"padding-left:2.5px;padding-right:2.5px\">".str_pad(($i+1), 2, "0", STR_PAD_LEFT)."</th>" ?>
-                    </tr>
-                </thead>
-                <?php $num = 0; while($row = $query->fetch_assoc()){ $num++;
-                    $param_date = $current_year."-".$current_month_pos; echo "
-                <tbody> 
-                    <tr>
-                        <th scope=\"col\">".$num."</th>
-                        <td scope=\"col\" style=\"white-space: nowrap\">".$row['nm_poli']."</td>";
-                        echo funIterateValues($row['kd_poli'], $current_institute_code, $current_year, $current_month_pos)."
-                    </tr>
-                </tbody>"; 
-                } ?>
-                <tbody class="table bg-light">
-                    <tr>
-                        <th scope="col" colspan="2">Total keseluruhan</th>
-                        <td scope="col" colspan="<?php echo $var_date_length?>"></td>
-                        <th scope="col"><?php echo $total_summary?></th>
-                    </tr>
-                </tbody>
-            </table>
+<body> <?php 
+include_once("./components/header.php");
+include_once("./components/section/tool-bar.php");
+
+if(isset($_SESSION['isSignedIn'])) { ?>
+    <div> <!--table-responsive-->
+        <table id="table" class="table table-borderless table-hover">
+            <thead class="table-light sticky-top">
+                <tr style="vertical-align:middle;text-align:center;">
+                    <th rowspan="2">No</th>
+                    <th rowspan="2">Poliklinik</th>
+                    <th scope="col" colspan="<?php echo $var_date_length?>">Tanggal</th>
+                    <th rowspan="2">Total</th>
+                </tr>
+                <tr>
+                    <?php for($i = 0; $i < $var_date_length; $i++) echo "
+                    <th scope=\"col\" style=\"padding-left:2.5px;padding-right:2.5px\">".str_pad(($i+1), 2, "0", STR_PAD_LEFT)."</th>" ?>
+                </tr>
+            </thead>
+            <?php $num = 0; while($row = $query->fetch_assoc()){ $num++;
+                $param_date = $current_year."-".$current_month_pos; echo "
+            <tbody> 
+                <tr>
+                    <th scope=\"col\">".$num."</th>
+                    <td scope=\"col\" style=\"white-space: nowrap\">".$row['nm_poli']."</td>";
+                    echo funIterateValues($row['kd_poli'], $current_institute_code, $current_year, $current_month_pos)."
+                </tr>
+            </tbody>"; 
+            } ?>
+            <tbody class="table bg-light">
+                <tr>
+                    <th scope="col" colspan="2">Total keseluruhan</th>
+                    <td scope="col" colspan="<?php echo $var_date_length?>"></td>
+                    <th scope="col"><?php echo $total_summary?></th>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <?php }
-        include_once("./components/footer.php");
-        include_once("./components/index/login-modal.php");
-        include_once("./components/dependency/script.php"); ?>
+<?php }
+    include_once("./components/footer.php");
+    include_once("./components/index/login-modal.php");
+    include_once("./components/dependency/script.php"); ?>
 </body>
 </html>
 <?php
@@ -156,43 +155,20 @@ function funIterateValues($kd_poli, $kd_pj, $year, $month) {
     $total_summary = $total_summary + $total;
 } 
 
-function mergeQueryStr($url = null,$query = null,$recursive = false) {
-  // $url = 'http://www.google.com.au?q=apple&type=keyword';
-  // $query = '?q=banana';
-  // if there's a URL missing or no query string, return
-  if($url == null)
-    return false;
-  if($query == null)
-    return $url;
-  // split the url into it's components
-  $url_components = parse_url($url);
-  // if we have the query string but no query on the original url
-  // just return the URL + query string
-  if(empty($url_components['query']))
-    return $url.'?'.ltrim($query, '?');
-  // turn the url's query string into an array
-  parse_str($url_components['query'],$original_query_string);
-  // turn the query string into an array
-  parse_str(parse_url($query, PHP_URL_QUERY), $merged_query_string);
-  // merge the query string
-  if($recursive == true)
-    $merged_result = array_merge_recursive($original_query_string, $merged_query_string);
-  else
-    $merged_result = array_merge($original_query_string, $merged_query_string);
-  // Find the original query string in the URL and replace it with the new one
-  return str_replace($url_components['query'], http_build_query($merged_result), $url);
-}
+function mergeQueryStr($url = null, $query = null, $recursive = false) { // $url = 'http://www.google.com.au?q=apple&type=keyword'; // $query = '?q=banana'; // if there's a URL missing or no query string, return
+    if($url == null) return false;
+    if($query == null) return $url; // split the url into it's components
 
-function sectionInfo(){
-    if(!isset($_SESSION['isSignedIn'])) { ?>
-        <div class="container">
-            <div class="alert alert-warning mb-5" role="alert"> <?php switch (isset($_GET['invalid_code'])) {
-                case 101: echo 'Kombinasi password dan username anda salah, pastikan anda menggunakan akun yang benar /valid.'; break;
-                case 102: echo 'Panjang karakter username atau password harus 8-20'; break;
-                default: echo 'Silahkan lakukan login dengan akun yang valid pada menu "Sign In" yang terdapat pada menu bar diatas.'; break; } ?>
-            </div>
-        </div>
-    <?php }
-}
+    $url_components = parse_url($url); // if we have the query string but no query on the original url // just return the URL + query string
+    if(empty($url_components['query']))
+        return $url.'?'.ltrim($query, '?'); // turn the url's query string into an array
 
-?>
+    parse_str($url_components['query'], $original_query_string); // turn the query string into an array
+    parse_str(parse_url($query, PHP_URL_QUERY), $merged_query_string); // merge the query string
+
+    if($recursive == true)
+        $merged_result = array_merge_recursive($original_query_string, $merged_query_string);
+    else
+        $merged_result = array_merge($original_query_string, $merged_query_string); // Find the original query string in the URL and replace it with the new one
+
+    return str_replace($url_components['query'], http_build_query($merged_result), $url); } ?>

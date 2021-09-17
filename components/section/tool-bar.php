@@ -1,3 +1,12 @@
+<?php if(!isset($_SESSION['isSignedIn'])) { ?>
+    <div class="container">
+        <div class="alert alert-warning mb-5" role="alert"> <?php switch (isset($_GET['invalid_code'])) {
+            case 101: echo 'Kombinasi password dan username anda salah, pastikan anda menggunakan akun yang benar /valid.'; break;
+            case 102: echo 'Panjang karakter username atau password harus 8-20'; break;
+            default: echo 'Silahkan lakukan login dengan akun yang valid pada menu "Sign In" yang terdapat pada menu bar diatas.'; break; } ?>
+        </div>
+    </div>
+<?php } ?>
 <div class="container">
     <div class="btn-group mb-5" role="group" aria-label="Button group with nested dropdown">
         <div class="form-outline">
