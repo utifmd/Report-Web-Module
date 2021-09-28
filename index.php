@@ -6,7 +6,7 @@
         AND `nm_poli` != 'Paru' 
         AND `nm_poli` NOT LIKE '%logi%' 
         AND `nm_poli` NOT LIKE '%kamar%' ORDER BY `nm_poli` DESC");
-    $query_institute = $mysqli->query("SELECT * FROM penjab");
+    $query_institute = $mysqli->query("SELECT * FROM penjab WHERE kd_pj IN('J02', 'INH', 'BPJ', 'A09', 'A30', 'A33')");
 
     if(mysqli_connect_errno()) exit();
     else if(!$query) throw new Exception("Error Querying Request", 1); // else if(!$query_institute) throw new Exception("Error Querying Request", 1);
