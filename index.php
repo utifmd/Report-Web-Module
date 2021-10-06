@@ -1,10 +1,10 @@
 <?php
     require_once("./config/database.php");
 
-    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1' 
-        AND `nm_poli` != 'ORTHOPEDI' 
-        AND `nm_poli` != 'Paru' 
-        AND `nm_poli` NOT LIKE '%logi%' 
+    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1'
+        AND `nm_poli` != 'ORTHOPEDI'
+        AND `nm_poli` != 'Paru'
+        AND `nm_poli` NOT LIKE '%logi%'
         AND `nm_poli` NOT LIKE '%kamar%' ORDER BY `nm_poli` DESC");
     $query_institute = $mysqli->query("SELECT * FROM penjab WHERE kd_pj IN('J02', 'INH', 'BPJ', 'A09', 'A30', 'A33')");
 

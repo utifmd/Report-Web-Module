@@ -32,8 +32,9 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
             <?php while($resource = $query_institute->fetch_assoc()){ echo 
-                "<li><a href=\"".mergeQueryStr($url, "?institute=".$resource['png_jawab']."&institute_code=".$resource['kd_pj']."")."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".$resource['png_jawab']."</a></li>"; } ?>
+                "<li><a href=\"".mergeQueryStr($url, "?institute=".$resource['png_jawab']."&institute_code=".$resource['kd_pj']."")."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".ucwords(strtolower($resource['png_jawab']))."</a></li>"; } ?>
             </ul>
         </div>
     </div>
+    <div class="btn-group mb-5"><a href="./" class="btn btn-warning">reset</a></div>
 </div>
