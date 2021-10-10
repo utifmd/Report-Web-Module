@@ -1,12 +1,16 @@
 <?php
     require_once("./config/database.php");
 
-    $query = $mysqli->query("SELECT * FROM poliklinik WHERE `status` = '1'
-        AND `nm_poli` != 'ORTHOPEDI'
-        AND `nm_poli` != 'Paru'
-        AND `nm_poli` NOT LIKE '%logi%'
-        AND `nm_poli` NOT LIKE '%kamar%' ORDER BY `nm_poli` DESC");
-    $query_institute = $mysqli->query("SELECT * FROM penjab WHERE kd_pj IN('J02', 'INH', 'BPJ', 'A09', 'A30', 'A33')");
+    $query = $mysqli->query("SELECT kd_poli, nm_poli, (CASE kd_poli 
+            WHEN 'U011' THEN 'Perinatologi'
+            WHEN 'U009' THEN 'Labor Mandiri'
+            WHEN 'U013' THEN 'Operasi/VK'
+            ELSE nm_poli END) AS poli_name 
+        FROM poliklinik 
+        WHERE `status` = '1' AND `kd_poli` NOT IN('U007', 'U006', 'U008', 'U010', 'U012', 'U014')
+        ORDER BY `nm_poli` DESC");
+    $query_institute = $mysqli->query("SELECT * 
+        FROM penjab WHERE kd_pj IN('J02', 'INH', 'BPJ', 'A09', 'A30', 'A33')");
 
     if(mysqli_connect_errno()) exit();
     else if(!$query) throw new Exception("Error Querying Request", 1); // else if(!$query_institute) throw new Exception("Error Querying Request", 1);
@@ -67,7 +71,7 @@ if(isset($_SESSION['isSignedIn'])) { ?>
             <tbody> 
                 <tr>
                     <th scope=\"col\">".$num."</th>
-                    <td scope=\"col\" style=\"white-space: nowrap\">".$row['nm_poli']."</td>";
+                    <td scope=\"col\" style=\"white-space: nowrap\">".$row['poli_name']."</td>";
                     echo funIterateValues($row['kd_poli'], $current_institute_code, $current_year, $current_month_pos)."
                 </tr>
             </tbody>"; 
@@ -110,6 +114,7 @@ function funSignOut(){
 
 function queryReqPoliCount($kd_poli, $kd_pj, $day, $month, $year){
     global $mysqli;
+    $isOperasi = null;
 
     if(isset($kd_pj)){
         return $mysqli->query("SELECT
@@ -123,6 +128,22 @@ function queryReqPoliCount($kd_poli, $kd_pj, $day, $month, $year){
             AND reg_periksa.kd_poli = '".$kd_poli."'
             AND reg_periksa.kd_pj = '".$kd_pj."'
             GROUP BY reg_periksa.tgl_registrasi");
+    } else if($kd_poli == 'U013'){ // Kamar Operasi
+        return $mysqli->query("SELECT 
+            operasi.no_rawat,
+            COUNT(pasien.nm_pasien) AS reg_poli_count,
+            reg_periksa.no_rkm_medis,
+            pasien.nm_pasien,
+            operasi.jenis_anasthesi,
+            operasi.tgl_operasi 
+            FROM operasi 
+            INNER JOIN reg_periksa ON operasi.no_rawat=reg_periksa.no_rawat
+            INNER JOIN pasien ON reg_periksa.no_rkm_medis=pasien.no_rkm_medis
+            WHERE EXTRACT(YEAR FROM operasi.tgl_operasi) = '".$year."'
+            AND EXTRACT(MONTH FROM operasi.tgl_operasi) = '".$month."'
+            AND EXTRACT(DAY FROM operasi.tgl_operasi) = '".$day."'
+            GROUP BY EXTRACT(DAY FROM operasi.tgl_operasi)
+            ORDER BY operasi.tgl_operasi,operasi.no_rawat");
     } else {
         return $mysqli->query("SELECT
             reg_periksa.tgl_registrasi,

@@ -25,16 +25,16 @@
                 "<li onclick=\"funApply('".$selected_month."', '".$i."')\"><a class=\"dropdown-item\" style=\"cursor:pointer;\">".$selected_month."</a></li>"; } ?>
             </ul>
         </div>
-        <div class="btn-group" role="group">
-            <button id="instituteKey" type="button" class="btn btn-primary dropdown-toggle <?php echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
+        <!-- <div class="btn-group" role="group">
+            <button id="instituteKey" type="button" class="btn btn-primary dropdown-toggle <?php// echo !isset($_SESSION['isSignedIn']) ? "disabled" : ""?>"
                 data-mdb-toggle="dropdown" aria-expanded="false">
-                <?php echo isset($current_institute) ? $current_institute : $list_institute[0]; ?>
+                <?php // echo isset($current_institute) ? $current_institute : $list_institute[0]; ?>
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="z-index:1070;">
-            <?php while($resource = $query_institute->fetch_assoc()){ echo 
-                "<li><a href=\"".mergeQueryStr($url, "?institute=".$resource['png_jawab']."&institute_code=".$resource['kd_pj']."")."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".ucwords(strtolower($resource['png_jawab']))."</a></li>"; } ?>
+            <?php// while($resource = $query_institute->fetch_assoc()){ echo 
+                //"<li><a href=\"".mergeQueryStr($url, "?institute=".$resource['png_jawab']."&institute_code=".$resource['kd_pj']."")."\" class=\"dropdown-item\" style=\"cursor:pointer;\">".ucwords(strtolower($resource['png_jawab']))."</a></li>"; } ?>
             </ul>
-        </div>
+        </div> -->
     </div>
-    <div class="btn-group mb-5"><a href="./" class="btn btn-warning">reset</a></div>
+    <!-- <div class="btn-group mb-5"><a href="./" class="btn btn-warning">reset</a></div>  -->
 </div>
